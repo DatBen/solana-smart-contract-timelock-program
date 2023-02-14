@@ -1,0 +1,19 @@
+[features]
+seeds = false
+skip-lint = true
+
+[programs.localnet]
+timelock_program = "7tKeFVr5wPggkfQKwTqxt9P6Cd6cRRyMttjj3kT2bjFY"
+dummy ="CNeP5kyAjtfH9gKrHq2bad9RdiJjYBB2Sme3yMTfe48Y"
+
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "http://localhost:8899"
+# cluster = "localnet"
+wallet = "/Users/benjamin/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/timelock.ts"
