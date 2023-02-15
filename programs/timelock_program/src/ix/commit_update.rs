@@ -10,7 +10,7 @@ pub struct CommitUpdate<'info> {
     #[account(mut, address = timelock.get_admin())]
     pub timelock_admin: Signer<'info>,
 
-    #[account(executable, mut)]
+    #[account(mut, executable, address = timelock.get_locked_program())]
     pub locked_program: AccountInfo<'info>,
 
     #[account(mut,
@@ -20,7 +20,7 @@ pub struct CommitUpdate<'info> {
     )]
     pub locked_program_data: AccountInfo<'info>,
 
-    #[account(mut)]
+    #[account(mut, address = timelock.get_next_update_buffer()?)]
     pub new_program_data: AccountInfo<'info>,
 
     #[account(

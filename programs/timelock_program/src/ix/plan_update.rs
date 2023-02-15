@@ -7,10 +7,10 @@ pub struct PlanUpdate<'info> {
     #[account(mut, address = timelock.get_admin())]
     pub current_authority: Signer<'info>,
 
-    #[account(executable)]
+    #[account(executable, address = timelock.get_locked_program())]
     pub locked_program: AccountInfo<'info>,
 
-    #[account(mut)]
+    #[account(mut, owner = bpf_upgradable_loader.key())]
     pub new_program_data: AccountInfo<'info>,
 
     #[account(

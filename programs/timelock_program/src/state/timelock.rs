@@ -35,6 +35,22 @@ impl TimeLock {
         ]
     }
 
+    pub fn get_admin(&self) -> Pubkey {
+        self.timelock_admin
+    }
+
+    pub fn get_locked_program(&self) -> Pubkey {
+        self.locked_program
+    }
+
+    pub fn get_next_update_buffer(&self) -> Result<Pubkey> {
+        return if let Some(update) = &self.next_update {
+            Ok(update.new_data_buffer)
+        } else {
+            err!(TimeLockError::NoUpdatePlanned)
+        };
+    }
+
     pub fn initialize(
         &mut self,
         timelock_bump: u8,
@@ -44,10 +60,6 @@ impl TimeLock {
         self.bump = [timelock_bump];
         self.locked_program = program_to_be_locked;
         self.timelock_admin = timelock_admin;
-    }
-
-    pub fn get_admin(&self) -> Pubkey {
-        self.timelock_admin
     }
 
     pub fn plan_update(

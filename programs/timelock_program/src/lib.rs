@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use ix::*;
 use state::locked_time::LockedTime;
 
-declare_id!("7tKeFVr5wPggkfQKwTqxt9P6Cd6cRRyMttjj3kT2bjFY");
+declare_id!("S2EAC2wTk7DK5Q7ma8DVKwFRG8YypSDTBMQzsXgFUXV");
 
 pub mod cpi;
 pub mod event;
@@ -35,6 +35,3 @@ pub mod timelock_program {
         ix::cancel_update::handler(ctx)
     }
 }
-
-#[derive(Accounts)]
-pub struct HashBenchmark {}

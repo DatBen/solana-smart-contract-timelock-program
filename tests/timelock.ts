@@ -9,19 +9,7 @@ import {
 
 import { IDL as timeLockIdl } from "../target/types/timelock_program";
 import { IDL as dummyIdl } from "../target/types/dummy";
-
-const BpfLoaderUpgradable = new PublicKey(
-  "BPFLoaderUpgradeab1e11111111111111111111111"
-);
-const bufferData = new PublicKey(
-  "8dj6X3kYpKnUXroL7HRcTbsULCYHi9wVbsFAES2jruct"
-);
-const dummyProgramId = new PublicKey(
-  "CNeP5kyAjtfH9gKrHq2bad9RdiJjYBB2Sme3yMTfe48Y"
-);
-const timelockProgramId = new PublicKey(
-  "7tKeFVr5wPggkfQKwTqxt9P6Cd6cRRyMttjj3kT2bjFY"
-);
+import { timelockProgramId, dummyProgramId, BpfLoaderUpgradable, bufferData } from "./test-config";
 
 describe("timelock_program", () => {
   // Configure the client to use the local cluster.
