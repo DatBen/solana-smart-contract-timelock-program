@@ -19,7 +19,6 @@ import {
 import assert from "assert";
 
 describe("timelock_program", () => {
-  // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
   const provider = anchor.getProvider();
 
