@@ -1,7 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import {
-  PublicKey,
+  Keypair,
   SystemProgram,
   SYSVAR_CLOCK_PUBKEY,
   SYSVAR_RENT_PUBKEY,
@@ -9,7 +9,14 @@ import {
 
 import { IDL as timeLockIdl } from "../target/types/timelock_program";
 import { IDL as dummyIdl } from "../target/types/dummy";
-import { timelockProgramId, dummyProgramId, BpfLoaderUpgradable, bufferData } from "./test-config";
+
+import {
+  timelockProgramId,
+  dummyProgramId,
+  BpfLoaderUpgradable,
+  bufferData,
+} from "./test-config";
+import assert from "assert";
 
 describe("timelock_program", () => {
   // Configure the client to use the local cluster.
@@ -32,16 +39,12 @@ describe("timelock_program", () => {
     BpfLoaderUpgradable
   );
 
-  timeLockProgram.addEventListener("PlanUpdateEvent", (e) => {
-    console.log(e);
+  it("call first ix of dummy should work", async () => {
+    await assert.doesNotReject(dummyProgram.methods.firstIx().rpc());
   });
 
-  timeLockProgram.addEventListener("CommitUpdateEvent", (e) => {
-    console.log(e);
-  });
-
-  it("call old dummy", async () => {
-    await dummyProgram.methods.initialize().rpc();
+  it("call second ix of dummy should fail", async () => {
+    await assert.rejects(dummyProgram.methods.secondIx().rpc());
   });
 
   it("init timelock", async () => {
@@ -55,7 +58,7 @@ describe("timelock_program", () => {
         systemProgram: SystemProgram.programId,
         bpfUpgradableLoader: BpfLoaderUpgradable,
       })
-      .rpc({ skipPreflight: true });
+      .rpc();
   });
 
   it("plan update", async () => {
@@ -75,28 +78,76 @@ describe("timelock_program", () => {
       .rpc();
 
     await timeLockProgram.account.timeLock.fetch(timeLock[0]);
+  });
 
+  it("commit update too early should fail", async () => {
+    await assert.rejects(
+      timeLockProgram.methods
+        .commitUpdate()
+        .accounts({
+          timelockAdmin: provider.publicKey,
+          lockedProgram: dummyProgram.programId,
+          lockedProgramData: dummyProgramData[0],
+          newProgramData: bufferData,
+          timelock: timeLock[0],
+          systemProgram: SystemProgram.programId,
+          bpfUpgradableLoader: BpfLoaderUpgradable,
+          rent: SYSVAR_RENT_PUBKEY,
+          clock: SYSVAR_CLOCK_PUBKEY,
+        })
+        .rpc(),
+      /UpdateLocked/
+    );
+  });
+
+  it("await until planned timestamp", async () => {
     await new Promise((f) => setTimeout(f, 20000));
   });
 
-  it("commit update", async () => {
-    await timeLockProgram.methods
-      .commitUpdate()
-      .accounts({
-        timelockAdmin: provider.publicKey,
-        lockedProgram: dummyProgram.programId,
-        lockedProgramData: dummyProgramData[0],
-        newProgramData: bufferData,
-        timelock: timeLock[0],
-        systemProgram: SystemProgram.programId,
-        bpfUpgradableLoader: BpfLoaderUpgradable,
-        rent: SYSVAR_RENT_PUBKEY,
-        clock: SYSVAR_CLOCK_PUBKEY,
-      })
-      .rpc();
+  it("commit update with an account other than the one defined by the update plan should fail", async () => {
+    await assert.rejects(
+      timeLockProgram.methods
+        .commitUpdate()
+        .accounts({
+          timelockAdmin: provider.publicKey,
+          lockedProgram: dummyProgram.programId,
+          lockedProgramData: dummyProgramData[0],
+          newProgramData: Keypair.generate().publicKey,
+          timelock: timeLock[0],
+          systemProgram: SystemProgram.programId,
+          bpfUpgradableLoader: BpfLoaderUpgradable,
+          rent: SYSVAR_RENT_PUBKEY,
+          clock: SYSVAR_CLOCK_PUBKEY,
+        })
+        .rpc(),
+      /AnchorError caused by account: new_program_data. Error Code: ConstraintAddress/
+    );
   });
 
-  it("call new dummy", async () => {
-    await dummyProgram.methods.initialize().rpc();
+  it("commit update after planned timestamp should not fail", async () => {
+    await assert.doesNotReject(
+      timeLockProgram.methods
+        .commitUpdate()
+        .accounts({
+          timelockAdmin: provider.publicKey,
+          lockedProgram: dummyProgram.programId,
+          lockedProgramData: dummyProgramData[0],
+          newProgramData: bufferData,
+          timelock: timeLock[0],
+          systemProgram: SystemProgram.programId,
+          bpfUpgradableLoader: BpfLoaderUpgradable,
+          rent: SYSVAR_RENT_PUBKEY,
+          clock: SYSVAR_CLOCK_PUBKEY,
+        })
+        .rpc()
+    );
+  });
+
+  it("call first ix of dummy should work", async () => {
+    await assert.doesNotReject(dummyProgram.methods.firstIx().rpc());
+  });
+
+  it("call second ix of dummy should work", async () => {
+    await assert.doesNotReject(dummyProgram.methods.secondIx().rpc());
   });
 });

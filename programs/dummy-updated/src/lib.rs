@@ -12,7 +12,8 @@ pub mod dummy {
     }
 
     pub fn second_ix(_ctx: Context<Ctx>) -> Result<()> {
-        todo!()
+        msg!("you called the second ix!");
+        Ok(())
     }
 }
 

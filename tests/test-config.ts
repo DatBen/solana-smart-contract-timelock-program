@@ -4,7 +4,11 @@ import { createKeypairFromFile } from "../src/get-keypair-from-file";
 export const BpfLoaderUpgradable = new PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
 );
-export const bufferData = createKeypairFromFile("program_buffer/keypair.json").publicKey;
+
+export const bufferData = createKeypairFromFile(
+  "program_buffer/keypair.json"
+).publicKey;
+
 export const dummyProgramId = createKeypairFromFile(
   "target/deploy/dummy-keypair.json"
 ).publicKey;
