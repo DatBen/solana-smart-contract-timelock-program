@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { createKeypairFromFile } from "../src/get-keypair-from-file";
+import { createKeypairFromFile } from "./helper/get-keypair-from-file";
 
 export const BpfLoaderUpgradable = new PublicKey(
   "BPFLoaderUpgradeab1e11111111111111111111111"
